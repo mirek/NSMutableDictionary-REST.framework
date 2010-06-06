@@ -4,7 +4,7 @@
 int main(int argc, char** argv) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   
-  NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/chacon";
+  NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/mirek";
   NSURL *url = [NSURL URLWithString: stringUrl];
   NSLog(@"%@", [NSMutableDictionary dictionaryWithRESTContentsOfURL: url]);
   

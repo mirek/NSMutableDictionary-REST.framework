@@ -1,0 +1,112 @@
+# NSMutableDictionary+REST.framework
+
+Rails'ish REST support for Objective-C's `NSMutableDictionary`
+
+    // Example usage:
+    NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/chacon";
+    NSURL *url = [NSURL URLWithString: stringUrl];
+    NSLog(@"%@", [NSMutableDictionary dictionaryWithRESTContentsOfURL: url]);
+    
+    // ...will output something like this:
+    {
+      users = (
+        {
+          created = "2008-04-26T15:37:59Z";
+          followers = 1;
+          fullname = "Mirek Rusin";
+          id = "user-8561";
+          language = "C++";
+          location = London;
+          name = mirek;
+          pushed = "2010-05-23T21:16:50.272Z";
+          repos = 8;
+          score = "15.604";
+          type = user;
+          username = mirek;
+        },
+        {
+          created = "2009-10-16T16:38:48Z";
+          followers = 0;
+          fullname = "Mirek Rusin";
+          id = "user-140734";
+          language = Ruby;
+          location = London;
+          name = mirekrusin;
+          pushed = "2010-05-24T02:16:19.737Z";
+          repos = 1;
+          score = "2.978005";
+          type = user;
+          username = mirekrusin;
+        },
+        {
+          created = "2010-04-22T14:28:13Z";
+          followers = 0;
+          fullname = "Mirek Mencel";
+          id = "user-249912";
+          language = "";
+          location = "Wroc\U0142aw";
+          name = mirekm;
+          pushed = "2010-05-25T02:20:23.464Z";
+          repos = 0;
+          score = "2.978005";
+          type = user;
+          username = mirekm;
+        }
+      );
+    }
+    
+Can you spot rails'ish way? The XML looks like this:
+
+    <users type="array"> 
+      <user> 
+        <name>mirek</name> 
+        <location>London</location> 
+        <followers type="integer">1</followers> 
+        <fullname>Mirek Rusin</fullname> 
+        <language>C++</language> 
+        <username>mirek</username> 
+        <id>user-8561</id> 
+        <repos type="integer">8</repos> 
+        <type>user</type> 
+        <pushed>2010-05-23T21:16:50.272Z</pushed> 
+        <score type="float">15.603998</score> 
+        <created>2008-04-26T15:37:59Z</created> 
+      </user> 
+      <user> 
+        <name>mirekrusin</name> 
+        <location>London</location> 
+        <followers type="integer">0</followers> 
+        <fullname>Mirek Rusin</fullname> 
+        <language>Ruby</language> 
+        <username>mirekrusin</username> 
+        <id>user-140734</id> 
+        <repos type="integer">1</repos> 
+        <type>user</type> 
+        <pushed>2010-05-24T02:16:19.737Z</pushed> 
+        <score type="float">2.9780054</score> 
+        <created>2009-10-16T16:38:48Z</created> 
+      </user> 
+      <user> 
+        <name>mirekm</name> 
+        <location>Wroc&#322;aw</location> 
+        <followers type="integer">0</followers> 
+        <fullname>Mirek Mencel</fullname> 
+        <language></language> 
+        <username>mirekm</username> 
+        <id>user-249912</id> 
+        <repos type="integer">0</repos> 
+        <type>user</type> 
+        <pushed>2010-05-25T02:20:23.464Z</pushed> 
+        <score type="float">2.9780054</score> 
+        <created>2010-04-22T14:28:13Z</created> 
+      </user> 
+    </users>
+
+## License
+
+© 2010 Mirek Rusin, Released under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+
+## Authors
+
+* Mirek Rusin <mirek [at] me [dot] com>
