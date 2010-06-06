@@ -8,11 +8,11 @@
 #import "NSMutableDictionaryRESTParser.h"
 
 // Declaration for SAX callbacks and structure
-static void startElementSAX(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI, int nb_namespaces, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes);
-static void	endElementSAX(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI);
-static void	charactersFoundSAX(void * ctx, const xmlChar * ch, int len);
-static void errorEncounteredSAX(void * ctx, const char * msg, ...);
-static xmlSAXHandler simpleSAXHandlerStruct;
+static void NSMutableDictionaryRESTParserElementStart(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI, int nb_namespaces, const xmlChar **namespaces, int nb_attributes, int nb_defaulted, const xmlChar **attributes);
+static void NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI);
+static void NSMutableDictionaryRESTParserCharactersFound(void * ctx, const xmlChar * ch, int len);
+static void NSMutableDictionaryRESTParserErrorEncountered(void * ctx, const char * msg, ...);
+static xmlSAXHandler NSMutableDictionaryRESTParserHandlerStruct;
 
 @implementation NSMutableDictionaryRESTParser
 
@@ -40,7 +40,7 @@ static xmlSAXHandler simpleSAXHandlerStruct;
   [[NSURLCache sharedURLCache] removeAllCachedResponses];
   NSURLRequest *urlRequest = [NSURLRequest requestWithURL: url];
   urlConnection = [[NSURLConnection alloc] initWithRequest: urlRequest delegate: self];
-  context = xmlCreatePushParserCtxt(&simpleSAXHandlerStruct, self, NULL, 0, NULL);
+  context = xmlCreatePushParserCtxt(&NSMutableDictionaryRESTParserHandlerStruct, self, NULL, 0, NULL);
 
   // [self performSelectorOnMainThread: @selector(downloadStarted) withObject: nil waitUntilDone: NO];
 
@@ -87,15 +87,15 @@ static xmlSAXHandler simpleSAXHandlerStruct;
 
 #pragma mark SAX Stuff
 
-static void startElementSAX(void *ctx,
-                            const xmlChar *localname,
-                            const xmlChar *prefix,
-                            const xmlChar *URI, 
-                            int nb_namespaces,
-                            const xmlChar **namespaces, 
-                            int nb_attributes,
-                            int nb_defaulted,
-                            const xmlChar **attributes)
+static void NSMutableDictionaryRESTParserElementStart(void *ctx,
+                                                      const xmlChar *localname,
+                                                      const xmlChar *prefix,
+                                                      const xmlChar *URI, 
+                                                      int nb_namespaces,
+                                                      const xmlChar **namespaces, 
+                                                      int nb_attributes,
+                                                      int nb_defaulted,
+                                                      const xmlChar **attributes)
 {
   NSMutableDictionaryRESTParser *parser = (NSMutableDictionaryRESTParser *)ctx;
   
@@ -127,7 +127,7 @@ static void startElementSAX(void *ctx,
   [parser.nameStack addObject: [NSString stringWithUTF8String: (const char *)localname]];
 }
 
-static void	endElementSAX(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI) {    
+static void	NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *localname, const xmlChar *prefix, const xmlChar *URI) {    
   NSMutableDictionaryRESTParser *parser = (NSMutableDictionaryRESTParser *)ctx;
   
   // Let's get the current element
@@ -173,46 +173,46 @@ static void	endElementSAX(void *ctx, const xmlChar *localname, const xmlChar *pr
   }
 }
 
-static void	charactersFoundSAX(void *ctx, const xmlChar *ch, int len) {
+static void	NSMutableDictionaryRESTParserCharactersFound(void *ctx, const xmlChar *ch, int len) {
   NSMutableDictionaryRESTParser *parser = (NSMutableDictionaryRESTParser *)ctx;
   [parser.data appendBytes: ch length: len];
 }
 
-static void errorEncounteredSAX(void *ctx, const char *msg, ...) {
+static void NSMutableDictionaryRESTParserErrorEncountered(void *ctx, const char *msg, ...) {
   NSCAssert(NO, @"Unhandled error encountered during SAX parse.");
 }
 
-static xmlSAXHandler simpleSAXHandlerStruct = {
-  NULL,                // internalSubset
-  NULL,                // isStandalone
-  NULL,                // hasInternalSubset
-  NULL,                // hasExternalSubset
-  NULL,                // resolveEntity
-  NULL,                // getEntity
-  NULL,                // entityDecl
-  NULL,                // notationDecl
-  NULL,                // attributeDecl
-  NULL,                // elementDecl
-  NULL,                // unparsedEntityDecl
-  NULL,                // setDocumentLocator
-  NULL,                // startDocument
-  NULL,                // endDocument
-  NULL,                // startElement*/
-  NULL,                // endElement
-  NULL,                // reference
-  charactersFoundSAX,  // characters
-  NULL,                // ignorableWhitespace
-  NULL,                // processingInstruction
-  NULL,                // comment
-  NULL,                // warning
-  errorEncounteredSAX, // error
-  NULL,                // fatalError //: unused error() get all the errors
-  NULL,                // getParameterEntity
-  NULL,                // cdataBlock
-  NULL,                // externalSubset
-  XML_SAX2_MAGIC,      //
-  NULL,                //
-  startElementSAX,     // startElementNs
-  endElementSAX,       // endElementNs
-  NULL,                // serror
+static xmlSAXHandler NSMutableDictionaryRESTParserHandlerStruct = {
+  NULL,                                          // internalSubset
+  NULL,                                          // isStandalone
+  NULL,                                          // hasInternalSubset
+  NULL,                                          // hasExternalSubset
+  NULL,                                          // resolveEntity
+  NULL,                                          // getEntity
+  NULL,                                          // entityDecl
+  NULL,                                          // notationDecl
+  NULL,                                          // attributeDecl
+  NULL,                                          // elementDecl
+  NULL,                                          // unparsedEntityDecl
+  NULL,                                          // setDocumentLocator
+  NULL,                                          // startDocument
+  NULL,                                          // endDocument
+  NULL,                                          // startElement*/
+  NULL,                                          // endElement
+  NULL,                                          // reference
+  NSMutableDictionaryRESTParserCharactersFound,  // characters
+  NULL,                                          // ignorableWhitespace
+  NULL,                                          // processingInstruction
+  NULL,                                          // comment
+  NULL,                                          // warning
+  NSMutableDictionaryRESTParserErrorEncountered, // error
+  NULL,                                          // fatalError //: unused error() get all the errors
+  NULL,                                          // getParameterEntity
+  NULL,                                          // cdataBlock
+  NULL,                                          // externalSubset
+  XML_SAX2_MAGIC,                                //
+  NULL,                                          //
+  NSMutableDictionaryRESTParserElementStart,     // startElementNs
+  NSMutableDictionaryRESTParserElementEnd,       // endElementNs
+  NULL,                                          // serror
 };
