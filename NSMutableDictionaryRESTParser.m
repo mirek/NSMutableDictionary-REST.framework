@@ -1,3 +1,9 @@
+// © 2010 Mirek Rusin
+// Released under the Apache License, Version 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Based on Apple XMLPerformance example:
+// http://developer.apple.com/iphone/library/samplecode/XMLPerformance/Listings/ReadMe_txt.html#//apple_ref/doc/uid/DTS40008094-ReadMe_txt-DontLinkElementID_23
 
 #import "NSMutableDictionaryRESTParser.h"
 
