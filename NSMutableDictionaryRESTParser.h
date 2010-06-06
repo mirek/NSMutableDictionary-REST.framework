@@ -10,7 +10,7 @@ typedef enum {
   NSMutableDictionaryRESTParserElementTypeStringOrDictionary,
   NSMutableDictionaryRESTParserElementTypeArray,
   NSMutableDictionaryRESTParserElementTypeFloat,
-  NSMutableDictionaryRESTParserElementTypeDouble
+  NSMutableDictionaryRESTParserElementTypeInteger
 } NSMutableDictionaryRESTParserElementType;
 
 @interface NSMutableDictionaryRESTParser : NSObject {

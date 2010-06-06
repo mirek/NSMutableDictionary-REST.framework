@@ -116,6 +116,9 @@ static void NSMutableDictionaryRESTParserElementStart(void *ctx,
         } else if (!xmlStrncmp((const xmlChar *)"float", attributes[j+3], strlen("float"))) {
           newType = NSMutableDictionaryRESTParserElementTypeFloat;
           break;
+        } else if (!xmlStrncmp((const xmlChar *)"integer", attributes[j+3], strlen("integer"))) {
+          newType = NSMutableDictionaryRESTParserElementTypeInteger;
+          break;
         }
       }
     }
@@ -154,10 +157,16 @@ static void	NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *lo
       new = [NSNumber numberWithFloat: [string floatValue]];
       break;
       
+    case NSMutableDictionaryRESTParserElementTypeInteger:
+      new = [NSNumber numberWithInteger: [string intValue]];
+      break;
+      
     case NSMutableDictionaryRESTParserElementTypeStringOrDictionary:
       if ([last count] > 0)
+        // Current element is a dictionary
         new = last;
       else
+        // Current element is just plain value (doesn't have any children elements)
         new = string;
       break;
   }
