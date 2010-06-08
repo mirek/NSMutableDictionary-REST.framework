@@ -8,5 +8,6 @@
 @interface NSMutableDictionary (REST)
 
 + (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url;
++ (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url delegate: (id) delegate;
 
 @end

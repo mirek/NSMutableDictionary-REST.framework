@@ -12,4 +12,11 @@
   return parser.tree;
 }
 
++ (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url delegate: (id) delegate {
+  NSMutableDictionaryRESTParser *parser = [[NSMutableDictionaryRESTParser alloc] init];
+  parser.delegate = delegate;
+  [parser parseWithURL: url];
+  return parser.tree;
+}
+
 @end

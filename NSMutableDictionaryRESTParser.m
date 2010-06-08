@@ -35,7 +35,7 @@ static xmlSAXHandler NSMutableDictionaryRESTParserHandlerStruct;
   self.tree = [NSMutableDictionary dictionary];
   self.stack = [NSMutableArray arrayWithObject: self.tree];
   self.typeStack = [NSMutableArray arrayWithObject: [NSNumber numberWithInt: NSMutableDictionaryRESTParserElementTypeStringOrDictionary]];
-  self.nameStack = [NSMutableArray arrayWithObject: @"root"];
+  self.nameStack = [NSMutableArray arrayWithObject: @""];
 
   [[NSURLCache sharedURLCache] removeAllCachedResponses];
   NSURLRequest *urlRequest = [NSURLRequest requestWithURL: url];
@@ -138,11 +138,6 @@ static void	NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *lo
   NSMutableDictionaryRESTParserElementType lastType = (NSMutableDictionaryRESTParserElementType)[[parser.typeStack lastObject] intValue];
   NSString *lastName = [parser.nameStack lastObject];
   
-  // ...and remove it from the stack
-  [parser.stack removeLastObject];
-  [parser.typeStack removeLastObject];
-  [parser.nameStack removeLastObject];
-
   // Current string value
   NSString *string = [[NSString alloc] initWithData: parser.data encoding: NSUTF8StringEncoding];
 
@@ -170,7 +165,16 @@ static void	NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *lo
         new = string;
       break;
   }
+
+  // Let's notify delgate about the new object before removing it's name from the stack
+  if ([parser.delegate respondsToSelector: @selector(didFinishElement:withPath:)])
+    [parser.delegate performSelector: @selector(didFinishElement:withPath:) withObject: new withObject: [parser.nameStack componentsJoinedByString: @"/"]];
   
+  // Now we can remove element from the stack
+  [parser.stack removeLastObject];
+  [parser.typeStack removeLastObject];
+  [parser.nameStack removeLastObject];
+    
   // We'll need current element's parent to assign new (mutated or not) element
   id parent = [parser.stack lastObject];
   NSMutableDictionaryRESTParserElementType parentType = (NSMutableDictionaryRESTParserElementType)[[parser.typeStack lastObject] intValue];
@@ -180,6 +184,8 @@ static void	NSMutableDictionaryRESTParserElementEnd(void *ctx, const xmlChar *lo
     case NSMutableDictionaryRESTParserElementTypeArray: [parent addObject: new]; break;
     case NSMutableDictionaryRESTParserElementTypeStringOrDictionary: [parent setObject: new forKey: lastName]; break;
   }
+  
+  //[new release];
 }
 
 static void	NSMutableDictionaryRESTParserCharactersFound(void *ctx, const xmlChar *ch, int len) {

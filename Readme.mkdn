@@ -1,6 +1,8 @@
 # NSMutableDictionary+REST.framework
 
-Rails'ish REST support for Objective-C's `NSMutableDictionary` (libxml2 SAX2 based - yes it works with iPhone/iPad):
+Rails'ish REST support for Objective-C's `NSMutableDictionary` (libxml2 SAX2 based - yes it works with iPhone/iPad).
+
+Provides intuitive asynchronous and synchronous interface.
 
     // Example usage:
     NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/chacon";
@@ -101,6 +103,39 @@ Can you spot rails'ish way? The XML looks like this:
         <created>2010-04-22T14:28:13Z</created> 
       </user> 
     </users>
+
+## Async and sync at the same time?
+
+Yes, look at this code:
+
+    NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/mirek";
+    NSURL *url = [NSURL URLWithString: stringUrl];
+
+    // Delegate gets objects asynchronously and constructor returns synchronously
+    NSDictionary *users = [NSMutableDictionary dictionaryWithRESTContentsOfURL: url
+                                                                      delegate: [[UserPrinter alloc] init]];
+                                                                      
+    // Above method returned synchronously
+    printf("Total users: %i\n", (int)[[users objectForKey: @"users"] count]);
+
+...where a `delegate` object is defined as:
+
+    @interface UserPrinter : NSObject
+    @end
+
+    @implementation UserPrinter
+
+    - (void) didFinishElement: (id) element withPath: (NSString *) path {
+      if ([path isEqualToString: @"/users/user"]) {
+      
+        // Yielding users asynchronously
+        NSDictionary *user = (NSDictionary *)element;
+        printf("- %s (%s)\n", [[user objectForKey: @"fullname"] UTF8String],
+                              [[user objectForKey: @"username"] UTF8String]);
+      }
+    }
+
+    @end
 
 ## License
 
