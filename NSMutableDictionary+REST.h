@@ -9,5 +9,7 @@
 
 + (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url;
 + (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url delegate: (id) delegate;
+- (NSString *) HTTPPostData;
+- (NSMutableArray *) HTTPPostDataArray;
 
 @end

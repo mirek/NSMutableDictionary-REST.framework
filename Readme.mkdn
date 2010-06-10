@@ -136,6 +136,20 @@ Yes, look at this code:
     }
 
     @end
+    
+## Simple POST support
+
+To generate simple HTTP POST from your dictionary:
+
+    // Using `users` from the example above...
+    printf("%s\n", [[[[users objectForKey: @"users"] objectAtIndex: 0] HTTPPostData] UTF8String]);
+    
+    // ...will output:
+    id=user-8561&repos=8&pushed=2010-05-23T21%3A16%3A50.272Z&type=user&location=London\
+    &language=C%2B%2B&username=mirek&created=2008-04-26T15%3A37%3A59Z\
+    &fullname=Mirek%20Rusin&followers=1&score=15.65372&name=mirek
+
+...next on the list: `multipart/form-data` support.
 
 ## License
 
