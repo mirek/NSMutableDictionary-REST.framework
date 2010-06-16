@@ -19,24 +19,41 @@
   return parser.tree;
 }
 
-// Generate HTTP post data body from the dictionary
-//
-// TODO: If there is at least one NSData object in the dictionary tree, the post data will be
-// generated with multipart/form-data encoding type instead of the standard
-// application/x-www-form-urlencoded
+/// Generate HTTP post data body from the dictionary
 //
 // Returns: HTTP post data
-- (NSString *) HTTPPostData {
+- (NSString *) RESTURLEncodedHTTPPostData {
   NSMutableArray *lines = [NSMutableArray array];
-  for (NSArray *pair in [self HTTPPostDataArray])
-    [lines addObject: [pair componentsJoinedByString: @"="]];
+  for (NSArray *pair in [self RESTArrayHTTPPostData]) {
+    NSMutableArray *escapedPair = [NSMutableArray arrayWithCapacity: 2];
+    for (id element in pair)
+      [escapedPair addObject: (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                                  (CFStringRef)[NSString stringWithFormat: @"%@", element],
+                                                                                  NULL,
+                                                                                  (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                                  kCFStringEncodingUTF8)];
+    [lines addObject: [escapedPair componentsJoinedByString: @"="]];
+  }
   return [lines componentsJoinedByString: @"&"];
 }
 
-// HTTP post data lines
+- (NSString *) RESTMultipartHTTPPostDataWithBoundary: (NSString *) boundary {
+  NSMutableArray *lines = [NSMutableArray array];
+  for (NSArray *pair in [self RESTArrayHTTPPostData]) {
+    [lines addObject: [NSString stringWithFormat: @"--%@", boundary]];
+    [lines addObject: [NSString stringWithFormat: @"Content-Disposition: form-data; name=\"%@\"", [pair objectAtIndex: 0]]];
+    [lines addObject: @""];
+    [lines addObject: [NSString stringWithFormat: @"%@", [pair lastObject]]];
+  }
+  [lines addObject: [NSString stringWithFormat: @"--%@--", boundary]];
+  NSString *r = [lines componentsJoinedByString: @"\r\n"];
+  return r;
+}
+
+/// HTTP post data (flattened) lines
 //
-// Returns: HTTP post data key-value pairs, keys are already []'ed
-- (NSMutableArray *) HTTPPostDataArray {
+// Returns: HTTP post data key-value pairs, keys are []'ed
+- (NSMutableArray *) RESTArrayHTTPPostData {
   
   // Flatten the dictionary
   NSMutableArray *flattened = [NSMutableArray array];
@@ -51,7 +68,7 @@
       for (NSString *key in [object allKeys]) {
         NSMutableArray *pathWithKey = [NSMutableArray arrayWithArray: path];
         
-        // We can be at root (key without []'thingys) only in the dictionary
+        // We can be at the root and we need a key without []'thingys
         if ([pathWithKey count] == 0)
           [pathWithKey addObject: [NSString stringWithFormat: @"%@", key]];
         else
@@ -67,19 +84,82 @@
         [objects addObject: [object objectAtIndex: i]];
       }
     } else {
-      NSString *escaped = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                              (CFStringRef)[NSString stringWithFormat: @"%@", object],
-                                                                              NULL,
-                                                                              (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-                                                                              kCFStringEncodingUTF8);
       [flattened insertObject: [NSArray arrayWithObjects:
                                 [path componentsJoinedByString: @""],
-                                escaped,
+                                object,
                                 nil]
                       atIndex: 0];
     }
   }
   return flattened;
+}
+
+- (NSData *) postRESTWithURL: (NSString *) urlString {
+  return [self sendRESTWithURL: urlString
+                        method: @"POST"
+                      encoding: @"multipart/form-data"
+                      response: nil
+                         error: nil];
+}
+
+- (NSData *) putRESTWithURL: (NSString *) urlString {
+  return [self sendRESTWithURL: urlString
+                        method: @"PUT"
+                      encoding: @"multipart/form-data"
+                      response: nil
+                         error: nil];
+}
+
+- (NSData *) sendRESTWithURL: (NSString *) urlString
+                      method: (NSString *) method
+                    encoding: (NSString *) encoding
+                    response: (NSURLResponse **) urlResponse
+                       error: (NSError **) error
+{
+  NSMutableURLRequest *request = [[[NSMutableURLRequest alloc] initWithURL: [NSURL URLWithString: urlString] 
+                                                               cachePolicy: NSURLRequestReloadIgnoringCacheData
+                                                           timeoutInterval: 60.0] autorelease];
+  
+  [request setHTTPMethod: method];
+
+  if ([encoding isEqualToString: @"multipart/form-data"]) {
+    
+    // multipart/form-data encoding, let's get a random boundary string
+    NSString *boundary = [NSString stringWithFormat:@"----boundary%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25)),
+                          (char)(65 + (arc4random() % 25)), (char)(65 + (arc4random() % 25))];
+    
+    [request setHTTPBody: [[self RESTMultipartHTTPPostDataWithBoundary: boundary] dataUsingEncoding: NSASCIIStringEncoding]];
+    [request setValue: [NSString stringWithFormat: @"multipart/form-data; boundary=%@", boundary] forHTTPHeaderField: @"Content-Type"];
+    
+  } else if ([encoding isEqualToString: @"application/x-www-form-urlencoded"]) {
+    
+    // application/x-www-form-urlencoded encoding
+    [request setHTTPBody: [[self RESTURLEncodedHTTPPostData] dataUsingEncoding: NSASCIIStringEncoding]];
+    [request setValue: @"application/x-www-form-urlencoded" forHTTPHeaderField: @"Content-Type"];
+    
+  } else {
+    
+    // Unknown encoding type
+    assert(NO);
+  }
+
+  // TODO: Async post
+  // NSURLConnection *conn = [[[NSURLConnection alloc] initWithRequest: request delegate: nil] autorelease];
+  // while (![conn isFinished]) {
+  //   [[NSRunLoop currentRunLoop] runMode: NSDefaultRunLoopMode 
+  //                            beforeDate: [NSDate distantFuture]];
+  // }
+  
+  return [NSURLConnection sendSynchronousRequest: request
+                               returningResponse: urlResponse
+                                           error: error];
 }
 
 @end

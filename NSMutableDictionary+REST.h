@@ -9,7 +9,20 @@
 
 + (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url;
 + (NSMutableDictionary *) dictionaryWithRESTContentsOfURL: (NSURL *) url delegate: (id) delegate;
-- (NSString *) HTTPPostData;
-- (NSMutableArray *) HTTPPostDataArray;
+
+- (NSData *) postRESTWithURL: (NSString *) urlString;
+- (NSData *) putRESTWithURL: (NSString *) urlString;
+
+- (NSData *) sendRESTWithURL: (NSString *) urlString
+                      method: (NSString *) method
+                    encoding: (NSString *) encoding
+                    response: (NSURLResponse **) urlResponse
+                       error: (NSError **) error;
+
+// @private
+
+- (NSMutableArray *) RESTArrayHTTPPostData;
+- (NSString *) RESTURLEncodedHTTPPostData;
+- (NSString *) RESTMultipartHTTPPostDataWithBoundary: (NSString *) boundary;
 
 @end
