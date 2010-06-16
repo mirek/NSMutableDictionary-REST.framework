@@ -2,6 +2,9 @@
 
 REST support for Objective-C `NSMutableDictionary` (libxml2 SAX2 based - yes it works with iPhone/iPad).
 
+This project is a part of [Safari Books Online Learn Something New Team Challenge](http://safaribooksonline.wordpress.com/2010/06/08/learn-something-new-team-challenge-gitpad-by-mirek-rusin/).
+Feel free to contribute to become a team member, and who knows we may [win an iPad for you](http://www.safaribooksonline.com/Corporate/learnteamchallenge/?cid=2010_06_blog_learnsomethingnewteamchallenge).
+
 Easy to use a/synchronous interface:
 
     // Example usage:
