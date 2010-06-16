@@ -1,8 +1,8 @@
 # NSMutableDictionary+REST.framework
 
-Rails'ish REST support for Objective-C's `NSMutableDictionary` (libxml2 SAX2 based - yes it works with iPhone/iPad).
+REST support for Objective-C `NSMutableDictionary` (libxml2 SAX2 based - yes it works with iPhone/iPad).
 
-Provides intuitive asynchronous and synchronous interface.
+Easy to use a/synchronous interface:
 
     // Example usage:
     NSString *stringUrl = @"http://github.com/api/v2/xml/user/search/chacon";
@@ -57,7 +57,7 @@ Provides intuitive asynchronous and synchronous interface.
       );
     }
     
-Can you spot rails'ish way? The XML looks like this:
+Can you spot rails'ish conversion style? The XML looks like this:
 
     <users type="array"> 
       <user> 
@@ -137,24 +137,31 @@ Yes, look at this code:
 
     @end
     
-## Simple POST support
+The method returns synchronously and delegate receives messages asynchronously.
 
-To generate simple HTTP POST from your dictionary:
+## POST support
 
-    // Using `users` from the example above...
-    printf("%s\n", [[[[users objectForKey: @"users"] objectAtIndex: 0] HTTPPostData] UTF8String]);
-    
-    // ...will output:
-    id=user-8561&repos=8&pushed=2010-05-23T21%3A16%3A50.272Z&type=user&location=London\
-    &language=C%2B%2B&username=mirek&created=2008-04-26T15%3A37%3A59Z\
-    &fullname=Mirek%20Rusin&followers=1&score=15.65372&name=mirek
+To POST the first user you could write something like this:
 
-...next on the list: `multipart/form-data` support.
+    id user = [[users objectForKey: @"users"] objectAtIndex: 0];
+    [user postRESTWithURL: @"http://localhost:3100/raw_post"];
+
+`localhost:3100` runs included `restapp` example/test application.
+
+Default encoding type is `multipart/form-data` so you can send images etc (as `NSData` objects):
+
+    NSURL *url = [NSURL URLWithString: @"http://www.google.co.uk//intl/en_com/images/srpr/logo1w.png"];
+    NSData *image = [NSData dataWithContentsOfURL: url];
+    id post = [NSMutableDictionary dictionaryWithObject: image
+                                                 forKey: @"uploaded_data"];
+    [post postRESTWithURL: @"http://localhost:3100/raw_post"];
+
+Refer to the source code on how to set `application/x-www-form-urlencoded` and `multipart/form-data` encoding types explicitly.
 
 ## License
 
-© 2010 Mirek Rusin, Released under the Apache License, Version 2.0
-http://www.apache.org/licenses/LICENSE-2.0
+    © 2010 Mirek Rusin, Released under the Apache License, Version 2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 ## Authors
 
