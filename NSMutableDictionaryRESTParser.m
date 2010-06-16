@@ -46,7 +46,8 @@ static xmlSAXHandler NSMutableDictionaryRESTParserHandlerStruct;
 
   if (urlConnection != nil) {
     do {
-      [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+      [[NSRunLoop currentRunLoop] runMode: NSDefaultRunLoopMode
+                               beforeDate: [NSDate distantFuture]];
     } while (processing);
   }
 
