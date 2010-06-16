@@ -29,10 +29,15 @@ int main(int argc, char** argv) {
   // Delegate gets objects asynchronously and the method returns synchronously
   NSMutableDictionary *users = [NSMutableDictionary dictionaryWithRESTContentsOfURL: url
                                                                            delegate: [[UserPrinter alloc] init]];
+  
   printf("Total users: %i\n", (int)[[users objectForKey: @"users"] count]);
+  
   id user = [[users objectForKey: @"users"] objectAtIndex: 0];
-  printf("%s\n", [[user HTTPPostData] UTF8String]);
-  //printf("%s\n", [[users HTTPPostData] UTF8String]);
+  
+  NSData *responseData = [user postRESTWithURL: @"http://localhost:3100/raw_post"];
+  
+  printf("%s\n", [[[NSString alloc] initWithData: responseData 
+                                        encoding: NSUTF8StringEncoding] UTF8String]),
   
   [pool drain];
   return 0;
